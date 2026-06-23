@@ -1,0 +1,15 @@
+// assuming n is the variable from input
+
+Word count = OrderedDict()
+// import the ordereddict
+
+For _ in range(n):
+	// Word is the elements passed from the input
+	if word in word_count:
+		word_count[word] +=1
+	else:
+		word_count[word] =1
+
+print(len(word_count))
+second_print_stmts = ‘’.join(str(count)) for count in word_count.values())
+print(second_print_stmts)

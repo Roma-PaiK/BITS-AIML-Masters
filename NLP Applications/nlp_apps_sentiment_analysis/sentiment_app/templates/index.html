@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sentiment Analysis Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Google Font -->
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<!-- Chart JS -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+    font-family:Poppins;
+    background:linear-gradient(135deg,#1f2937,#111827);
+    margin:0;
+    color:white;
+}
+
+.container{
+    max-width:900px;
+    margin:40px auto;
+    background:#111827;
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 0 30px rgba(0,0,0,0.6);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:25px;
+    font-weight:600;
+}
+
+textarea{
+    width:100%;
+    height:120px;
+    padding:15px;
+    border-radius:10px;
+    border:none;
+    font-size:16px;
+    resize:none;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    margin-top:15px;
+    background:#6366f1;
+    border:none;
+    border-radius:10px;
+    color:white;
+    font-size:18px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#4f46e5;
+}
+
+.result-card{
+    margin-top:30px;
+    padding:25px;
+    border-radius:12px;
+    background:#1f2937;
+}
+
+.sentiment{
+    font-size:28px;
+    font-weight:600;
+}
+
+.emoji{
+    font-size:50px;
+}
+
+.confidence{
+    margin-top:10px;
+    font-size:18px;
+}
+
+.bar{
+    height:10px;
+    background:#374151;
+    border-radius:10px;
+    margin-top:8px;
+    overflow:hidden;
+}
+
+.bar-fill{
+    height:100%;
+    background:linear-gradient(90deg,#22c55e,#3b82f6);
+}
+
+.user-text{
+    background:#020617;
+    padding:15px;
+    border-radius:10px;
+    margin-top:15px;
+    word-wrap:break-word;
+}
+
+canvas{
+    margin-top:30px;
+}
+
+/* Dynamic Colors */
+    .text-Positive { color: #22c55e; }
+    .bg-Positive { background: #22c55e; }
+    
+    .text-Negative { color: #ef4444; }
+    .bg-Negative { background: #ef4444; }
+    
+    .text-Neutral { color: #eab308; }
+    .bg-Neutral { background: #eab308; }
+
+    .result-card {
+        margin-top:30px;
+        padding:25px;
+        border-radius:12px;
+        background:#1f2937;
+        border-left: 10px solid; /* Will be colored by class */
+    }
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+<h1>💬 AI Sentiment Analysis Dashboard</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    <textarea name="text" placeholder="Enter customer feedback...">{{ result.text if result }}</textarea>
+    
+    <div style="margin-top: 15px; border: 1px dashed #6366f1; padding: 10px; border-radius: 10px; text-align: center;">
+        <label for="file-upload" style="cursor: pointer; color: #6366f1; font-weight: 600;">
+            📁 Or Upload a Text File (.txt)
+        </label>
+        <input id="file-upload" name="file" type="file" accept=".txt" style="display: block; margin: 10px auto; font-size: 14px;">
+    </div>
+
+    <button type="submit">Analyze Sentiment</button>
+</form>
+
+{% if result %}
+
+<div class="result-card" style="border-left-color: 
+    {% if result.label == 'Positive' %}#22c55e{% elif result.label == 'Negative' %}#ef4444{% else %}#eab308{% endif %};">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="sentiment text-{{ result.label }}">
+            {{ result.label }}
+        </div>
+        <div class="emoji">{{ result.emoji }}</div>
+    </div>
+
+    <div class="confidence">
+        Confidence: <strong>{{ result.confidence }}%</strong>
+        <div class="bar">
+            <div class="bar-fill bg-{{ result.label }}" style="width:{{ result.confidence }}%"></div>
+        </div>
+    </div>
+    
+    </div>
+
+<p style="margin-top:15px;">{{ result.message }}</p>
+
+<div class="user-text">
+<b>Analyzed Text:</b><br>
+{{ result.text }}
+</div>
+
+<canvas id="chart"></canvas>
+
+</div>
+
+<script>
+var ctx = document.getElementById('chart').getContext('2d');
+
+new Chart(ctx,{
+type:'bar',
+data:{
+labels:['Positive','Neutral','Negative'],
+datasets:[{
+data:[
+{{ result.scores.pos }},
+{{ result.scores.neu }},
+{{ result.scores.neg }}
+],
+backgroundColor:[
+'#22c55e',
+'#eab308',
+'#ef4444'
+],
+borderRadius:8
+}]
+},
+options:{
+plugins:{
+legend:{display:false}
+},
+scales:{
+y:{
+beginAtZero:true,
+ticks:{color:"white"}
+},
+x:{
+ticks:{color:"white"}
+}
+}
+}
+});
+</script>
+
+{% endif %}
+
+</div>
+
+</body>
+</html>
